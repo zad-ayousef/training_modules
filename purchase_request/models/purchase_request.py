@@ -46,10 +46,10 @@ class PurchaseRequest(models.Model):
                         'email_to': user.partner_id.email,
                     }).send()
 
-    def action_approve(self):
-        for rec in self:
-            rec.status = 'approve'
-            rec.is_editable = 0
+    # def action_approve(self):
+    #     for rec in self:
+    #         rec.status = 'approve'
+    #         rec.is_editable = 0
 
     def action_reject(self):
         for rec in self:
