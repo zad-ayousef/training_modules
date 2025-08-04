@@ -1,0 +1,8 @@
+<odoo>
+
+    <menuitem
+            id="purchase_request_base_menu"
+            name="Purchase Requests"
+    />
+
+</odoo>
