@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+
+        <!-- Main Menu: Purchase Requests -->
+        <menuitem id="purchase_request_main_menu"
+                  name="Purchase Requests"
+                  sequence="10" />
+
+        <!-- Sub Menu: Orders under "Purchase Requests" -->
+        <menuitem id="purchase_request_orders_menu"
+                  name="Orders"
+                  parent="purchase_request_main_menu"
+                  sequence="10"/>
+
+        <!-- Purchase Requests List/Menu (linked to action) -->
+        <menuitem id="purchase_request_menu"
+                  name="Purchase Requests"
+                  parent="purchase_request_orders_menu"
+                  action="purchase_menu_action"
+                  sequence="10"/>
+
+    </data>
+</odoo>
