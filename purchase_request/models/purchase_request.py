@@ -1,16 +1,19 @@
 from odoo import models, fields, api
 
-
 class PurchaseRequest(models.Model):
     _name = 'purchase.request'
-    
+    _description = 'Purchase Request'
 
     name = fields.Char(required=True, string='Request Name')
-    is_editable = fields.Boolean(default=1)
+    is_editable = fields.Boolean(
+        string='Is Editable',
+        compute='_compute_is_editable',
+        store=True,
+        readonly=True
+    )
     requested_by = fields.Many2one('res.users',
                                    string='Request by',
                                    default=lambda self: self.env.user)
-
     start_date = fields.Date(default=fields.Date.today)
     status = fields.Selection([
         ('draft', 'Draft'),
@@ -24,15 +27,27 @@ class PurchaseRequest(models.Model):
     reason = fields.Text(string='Rejection Reason', readonly=True)
     order_lines_ids = fields.One2many('purchase.request.line', 'request_id')
 
+    @api.depends('status')
+    def _compute_is_editable(self):
+        """
+        Compute whether the request is editable or not depending on the status.
+        """
+        for rec in self:
+            rec.is_editable = rec.status in ('draft', 'to_be_approve')
+
     def action_submit_for_approval(self):
+        """
+        Submit the purchase request for approval.
+        """
         for rec in self:
             rec.status = 'to_be_approve'
 
     def action_approve(self):
+        """
+        Approve the purchase request, disable editing, and notify managers by email.
+        """
         for rec in self:
             rec.status = 'approve'
-            rec.is_editable = False
-
             purchase_manager_group = self.env.ref('purchase.group_purchase_manager')
             users = purchase_manager_group.users
             subject = f"Purchase Request ({rec.name}) has been approved"
@@ -46,12 +61,12 @@ class PurchaseRequest(models.Model):
                         'email_to': user.partner_id.email,
                     }).send()
 
-  
-
     def action_reject(self):
+        """
+        Mark the purchase request as rejected and open the rejection reason wizard.
+        """
         for rec in self:
             rec.status = 'reject'
-            rec.is_editable = 0
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'rejection.reason',
@@ -64,45 +79,23 @@ class PurchaseRequest(models.Model):
         }
 
     def action_reset_to_draft(self):
+        """
+        Reset the status to draft to allow editing.
+        """
         for rec in self:
             rec.status = 'draft'
-            rec.is_editable = 1
 
     def action_cancel_request(self):
+        """
+        Cancel the purchase request and allow editing (if needed).
+        """
         for rec in self:
             rec.status = 'cancel'
-            rec.is_editable = 1
 
     @api.depends('order_lines_ids.total')
     def _compute_total_price(self):
+        """
+        Compute the total price for all order lines.
+        """
         for record in self:
             record.total_price = sum(line.total for line in record.order_lines_ids)
-
-
-class PurchaseRequestLine(models.Model):
-    _name = 'purchase.request.line'
-
-    product_id = fields.Many2one('product.product', required=True)
-
-    description = fields.Char(compute='set_description', store=1)
-
-    request_id = fields.Many2one('purchase.request')
-
-    quantity = fields.Float(default=1)
-    total = fields.Float(compute='compute_total', store=True)
-    cost_price = fields.Float(string="Cost Price", readonly=True, compute='set_cost_price', store=True)
-
-    @api.depends('quantity', 'cost_price')
-    def compute_total(self):
-        for rec in self:
-            rec.total = (rec.quantity * rec.cost_price)
-
-    @api.depends('product_id')
-    def set_description(self):
-        for line in self:
-            line.description = line.product_id.name or ''
-
-    @api.depends('product_id')
-    def set_cost_price(self):
-        for line in self:
-            line.cost_price = line.product_id.standard_price or 0.0
