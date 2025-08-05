@@ -1,8 +1,7 @@
 <odoo>
     <data>
-
         <record id="view_purchase_request_tree" model="ir.ui.view">
-            <field name="name">purchase.request.tree</field>
+            <field name="name">purchase.request.list</field>
             <field name="model">purchase.request</field>
             <field name="arch" type="xml">
                 <list>
@@ -18,10 +17,9 @@
             <field name="name">purchase.request.form</field>
             <field name="model">purchase.request</field>
             <field name="arch" type="xml">
-                <form edit="is_editable == 0">
+                <form edit="is_editable">
                     <sheet>
                         <header>
-                            <!-- Draft State -->
                             <button name="action_submit_for_approval" string="Submit for Approval"
                                     type="object" class="btn-success"
                                     invisible="status !=  'draft'"/>
@@ -30,19 +28,17 @@
                                     type="object" class="btn-secondary"
                                     invisible="status != 'draft'"/>
 
-                            <!-- Approval State -->
                             <button name="action_approve" string="Approve"
                                     type="object" class="btn-success"
-                                    invisible="status not in  ['to_be_approve']"/>
+                                    invisible="status != 'to_be_approve'"/>
 
                             <button name="action_reject" string="Reject"
                                     type="object" class="btn-danger"
-                                    invisible="status not in  ['to_be_approve']"/>
+                                    invisible="status != 'to_be_approve'"/>
 
-                            <!-- Cancelled State -->
                             <button name="action_reset_to_draft" string="Reset to Draft"
                                     type="object" class="btn-secondary"
-                                    invisible="status not in ['cancel','to_be_approve']"/>
+                                    invisible="status != 'cancel'"/>
 
                             <field name="status" widget="statusbar"/>
                         </header>
@@ -58,24 +54,25 @@
                             <field name="requested_by"/>
                             <field name="start_date"/>
                             <field name="end_date" invisible="1"/>
-                            <field name="reason"/>
+                            <field name="reason" invisible="status != 'reject'" readonly="1"/>
                         </group>
 
                         <notebook>
-                            <page string="Request Lines" edit="is_editable == 0">
+                            <page string="Request Lines">
                                 <field name="order_lines_ids">
                                     <list editable="bottom">
                                         <field name="product_id"/>
-                                        <field name="description"/>
+                                        <field name="description" readonly="1"/>
                                         <field name="quantity"/>
-                                        <field name="cost_price"/>
-                                        <field name="total"/>
+                                        <field name="cost_price" readonly="1"/>
+                                        <field name="total" readonly="1"/>
                                     </list>
                                 </field>
-                                <group>
-                                    <field name="total_price"/>
-                                </group>
 
+                                <group>
+                                    <field name="total_price" readonly="1"/>
+
+                                </group>
                             </page>
                         </notebook>
 
@@ -84,10 +81,8 @@
             </field>
         </record>
 
-        <!--     actions opening views on models-->
-
         <record model="ir.actions.act_window" id="purchase_menu_action">
-            <field name="name">purchase.view.action</field>
+            <field name="name">Purchase Requests</field>
             <field name="res_model">purchase.request</field>
             <field name="view_mode">list,form</field>
             <field name="help" type="html">
@@ -96,14 +91,5 @@
                 </p>
             </field>
         </record>
-
-
-        <!-- actions -->
-
-        <menuitem name="Purchase"
-                  id="purchase_menu_item"
-                  parent="purchase_request_base_menu"
-                  action="purchase_menu_action"/>
-
     </data>
 </odoo>
