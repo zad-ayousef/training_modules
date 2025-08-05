@@ -3,7 +3,7 @@ from odoo import models, fields, api
 
 class PurchaseRequest(models.Model):
     _name = 'purchase.request'
-    _description = 'Online Course'
+    
 
     name = fields.Char(required=True, string='Request Name')
     is_editable = fields.Boolean(default=1)
@@ -46,10 +46,7 @@ class PurchaseRequest(models.Model):
                         'email_to': user.partner_id.email,
                     }).send()
 
-    # def action_approve(self):
-    #     for rec in self:
-    #         rec.status = 'approve'
-    #         rec.is_editable = 0
+  
 
     def action_reject(self):
         for rec in self:
