@@ -6,31 +6,20 @@ class SaleOrderLine(models.Model):
 
     dimension = fields.Char("Dimension")
 
+
+    # Computes whether the current user is allowed to edit the 'dimension' field
+    # on this sale order line. Editing is only allowed for the salesperson
+    # assigned to the order.
+    def _compute_is_editable(self):
+        for line in self:
+            line.is_editable = line.order_id.user_id == self.env.user
+    
     # When the product_id is changed, this function automatically sets
     # the dimension field based on the related product's dimension.
     @api.onchange('product_id')
     def _onchange_product_id_dimension(self):
         if self.product_id:
             self.dimension = self.product_id.dimension
-
-    # Overrides the create method to restrict setting the dimension field.
-    # Only the salesperson assigned to the order can set the dimension when creating a sale order line.
-    @api.model
-    def create(self, vals):
-        if 'dimension' in vals and vals.get('order_id'):
-            order = self.env['sale.order'].browse(vals['order_id'])
-            if order.exists() and order.user_id != self.env.user:
-                raise exceptions.UserError("Only the salesperson assigned to this order can set dimension.")
-        return super(SaleOrderLine, self).create(vals)
-
-    # Overrides the write method to restrict editing the dimension field.
-    # Only the salesperson assigned to the order can edit the dimension.
-    def write(self, vals):
-        if 'dimension' in vals:
-            for line in self:
-                if line.order_id.user_id != self.env.user:
-                    raise exceptions.UserError("Only the salesperson assigned to this order can edit dimension.")
-        return super(SaleOrderLine, self).write(vals)
 
     # Prepares custom procurement values by adding the dimension field when generating procurement for stock moves.
     def _prepare_procurement_values(self, group_id=False):
