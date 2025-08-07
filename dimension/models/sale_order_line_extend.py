@@ -5,7 +5,12 @@ class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     dimension = fields.Char("Dimension")
-
+    
+    is_editable = fields.Boolean(
+        compute='_compute_is_editable',
+        default=False,
+        string='Is Editable'
+    )
 
     # Computes whether the current user is allowed to edit the 'dimension' field
     # on this sale order line. Editing is only allowed for the salesperson
