@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_template_id']" position="after">
-                <field name="dimension" readonly="is_editable == False" />
+                <field name="dimension" readonly="is_editable == False" force_save="1"/>
             </xpath>
 
         </field>
