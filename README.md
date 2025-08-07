@@ -1,7 +1,7 @@
-# Training Module - (Purchse Request Task)
+# purchse_request for Task (Training : Purchase Request)
 
 -----------------------
 
-# Training Module - (Dimension Task)
+# dimension for Task (Training : Dimension)
 
 -----------------------
