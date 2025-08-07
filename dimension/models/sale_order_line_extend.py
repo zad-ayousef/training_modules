@@ -4,7 +4,7 @@ from odoo import models, fields, api, exceptions
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    dimension = fields.Char("Dimension")
+    dimension = fields.Char("Dimension", store=True)
     
     is_editable = fields.Boolean(
         compute='_compute_is_editable',
