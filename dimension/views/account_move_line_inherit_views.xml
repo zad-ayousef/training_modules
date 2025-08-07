@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="view_move_form_inherit_dimension" model="ir.ui.view">
+            <field name="name">account.move.form.inherit.dimension</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='product_id']" position="after">
+                    <field name="dimension" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+</odoo>
