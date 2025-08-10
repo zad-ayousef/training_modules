@@ -1,0 +1,25 @@
+<odoo>
+    <template id="custom_signup_fields" inherit_id="auth_signup.fields" name="Signup Add Mobile and Phone">
+        <xpath expr="//div[contains(@class, 'field-confirm_password')]" position="after">
+
+            <!-- Mobile Field -->
+            <div class="mb-3 field-mobile">
+                <label for="mobile">Mobile</label>
+                <input type="tel" name="mobile" id="mobile"
+                       class="form-control form-control-sm"
+                       required="required" pattern="[0-9]+"
+                       placeholder="Enter mobile number" />
+            </div>
+
+            <!-- Phone Field -->
+            <div class="mb-3 field-phone">
+                <label for="phone">Phone</label>
+                <input type="tel" name="phone" id="phone"
+                       class="form-control form-control-sm"
+                       required="required" pattern="[0-9]+"
+                       placeholder="Enter phone number" />
+            </div>
+
+        </xpath>
+    </template>
+</odoo>
