@@ -214,7 +214,7 @@ patch(AccountReport.prototype, {
             if (partnerBalances && Object.keys(partnerBalances).length > 0 && partnerBalances[partnerName]) {
                 initialBalance = partnerBalances[partnerName];
             }
-            // Removed fallback calculation - always shows 0.00 LE if no Python data
+            //always shows 0.00 LE if no Python data
 
             nameDiv.textContent = initialBalance;
 
