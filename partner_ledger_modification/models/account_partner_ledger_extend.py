@@ -17,7 +17,13 @@ class ResPartner(models.Model):
         ]
 
         move_lines = self.env['account.move.line'].search(domain)
-        return sum(move_lines.mapped('balance'))
+
+        # Calculate sum of debits and credits separately
+        total_debit = sum(move_lines.mapped('debit'))
+        total_credit = sum(move_lines.mapped('credit'))
+
+        # Return the difference (debit - credit)
+        return total_debit - total_credit
 
 
 class AccountPartnerLedgerReportHandler(models.AbstractModel):
