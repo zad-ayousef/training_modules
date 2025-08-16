@@ -4,26 +4,17 @@ from odoo import models, fields, api
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    def compute_initial_balance(self, date_from=None):
-        """Compute initial balance for this partner before a specific date"""
-        if not date_from:
-            date_from = fields.Date.today().replace(month=1, day=1)
+    def get_opening_balance(self):
+        total = 0.0
 
-        domain = [
-            ('partner_id', '=', self.id),
-            ('date', '<', date_from),
-            ('move_id.state', '=', 'posted'),
-            ('account_id.account_type', 'in', ['asset_receivable', 'liability_payable'])
-        ]
+        if self.property_account_receivable_id:
+            total += self.property_account_receivable_id.opening_balance or 0.0
 
-        move_lines = self.env['account.move.line'].search(domain)
+        if (self.property_account_payable_id and
+                self.property_account_payable_id != self.property_account_receivable_id):
+            total += self.property_account_payable_id.opening_balance or 0.0
 
-        # Calculate sum of debits and credits separately
-        total_debit = sum(move_lines.mapped('debit'))
-        total_credit = sum(move_lines.mapped('credit'))
-
-        # Return the difference (debit - credit)
-        return total_debit - total_credit
+        return total
 
 
 class AccountPartnerLedgerReportHandler(models.AbstractModel):
@@ -31,44 +22,47 @@ class AccountPartnerLedgerReportHandler(models.AbstractModel):
 
     @api.model
     def get_partner_initial_balances(self, options):
-        """RPC method to get initial balances for partners"""
         try:
-            date_from = options.get('date', {}).get('date_from')
-            if not date_from:
-                date_from = fields.Date.today().replace(month=1, day=1)
-            elif isinstance(date_from, str):
-                date_from = fields.Date.from_string(date_from)
-
-            partner_ids = self._get_report_partner_ids()
+            partners = self._get_report_partners(options)
 
             result = {}
-            for partner_id in partner_ids:
-                partner = self.env['res.partner'].browse(partner_id)
-                if partner.exists():
-                    initial_balance = partner.compute_initial_balance(date_from)
-                    result[partner.name] = self._format_currency(initial_balance)
+            total_balance = 0.0
+
+            for partner in partners:
+                opening_balance = partner.get_opening_balance()
+                result[partner.name] = self._format_balance(opening_balance)
+                total_balance += opening_balance
+
+            # Include the total as a separate key
+            result['total'] = total_balance
 
             return result
 
-        except Exception:
-            return {}
+        except Exception as e:
+            return {"error": f"Error getting opening balances: {str(e)}"}
 
-    def _get_report_partner_ids(self):
-        """Get partner IDs that have transactions"""
+    def _get_report_partners(self, options):
         domain = [
             ('partner_id', '!=', False),
-            ('account_id.account_type', 'in', ['asset_receivable', 'liability_payable'])
+            ('account_id.account_type', 'in', ['asset_receivable', 'liability_payable']),
+            ('move_id.state', '=', 'posted')
         ]
 
-        move_lines = self.env['account.move.line'].search(domain, limit=1000)
-        return list(set(move_lines.mapped('partner_id').ids))
+        if options and options.get('date'):
+            date_filters = options['date']
+            if date_filters.get('date_from'):
+                domain.append(('date', '>=', date_filters['date_from']))
+            if date_filters.get('date_to'):
+                domain.append(('date', '<=', date_filters['date_to']))
 
-    def _format_currency(self, amount):
-        """Format amount for display"""
+        move_lines = self.env['account.move.line'].search(domain)
+        partner_ids = list(set(move_lines.mapped('partner_id.id')))
+
+        return self.env['res.partner'].browse(partner_ids)
+
+    def _format_balance(self, amount):
         if amount == 0:
             return "0.00 LE"
 
         formatted = "{:,.2f} LE".format(abs(amount))
-        if amount < 0:
-            formatted = f"({formatted})"
-        return formatted
+        return formatted if amount >= 0 else f"({formatted})"
