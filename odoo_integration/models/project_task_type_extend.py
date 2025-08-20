@@ -2,6 +2,7 @@ from odoo import models, fields, api
 from ..utils.remote_odoo import RemoteOdoo
 
 
+
 class ProjectTaskType(models.Model):
     _inherit = 'project.task.type'
 
@@ -28,6 +29,7 @@ class ProjectTaskType(models.Model):
         remote_vals['sequence'] = vals.get('sequence', self.sequence)
         remote_vals['fold'] = vals.get('fold', self.fold)
 
+
         related_project_ids = []
         if hasattr(self, 'project_ids'):
             for project in self.project_ids:
@@ -36,6 +38,7 @@ class ProjectTaskType(models.Model):
             if related_project_ids:
                 remote_vals['project_ids'] = [(6, 0, related_project_ids)]
 
+
         remote_vals['related_stage_id'] = self.id
         remote_vals['sync_in_progress'] = True
 
@@ -43,6 +46,7 @@ class ProjectTaskType(models.Model):
 
     @api.model
     def create(self, vals):
+
         if vals.get('sync_in_progress'):
             vals.pop('sync_in_progress')
             return super().create(vals)
@@ -56,8 +60,10 @@ class ProjectTaskType(models.Model):
                 remote_id = remote.create('project.task.type', remote_vals)
 
                 if remote_id:
+
                     stage.related_stage_id = remote_id
                     print(f"Stage mapping created: Local ID {stage.id} ↔ Remote ID {remote_id}")
+
 
                     try:
                         remote.write('project.task.type', [remote_id], {'related_stage_id': stage.id})
@@ -71,6 +77,7 @@ class ProjectTaskType(models.Model):
         return stage
 
     def write(self, vals):
+
         if vals.get('sync_in_progress'):
             vals.pop('sync_in_progress')
             return super().write(vals)
@@ -89,4 +96,5 @@ class ProjectTaskType(models.Model):
                     except Exception as e:
                         print(f"Failed to sync stage update: {e}")
         return result
+
 

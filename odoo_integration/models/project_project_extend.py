@@ -22,25 +22,32 @@ class ProjectProject(models.Model):
         remote_vals['description'] = vals.get('description', self.description)
         remote_vals['related_project_id'] = self.id
 
+
         remote_vals['sync_in_progress'] = True
 
         return remote_vals
 
     @api.model
     def create(self, vals):
+
         if vals.get('sync_in_progress'):
+            print("Skipping sync - sync_in_progress flag detected")
             vals.pop('sync_in_progress')
             return super().create(vals)
 
+        print(f"Creating project normally: {vals.get('name', 'Unknown')}")
         rec = super().create(vals)
+
 
         remote = rec._get_remote_odoo()
         if remote:
             try:
                 remote_vals = rec._prepare_remote_vals(vals)
+                print(f"Syncing to remote: {remote_vals}")
                 remote_id = remote.create('project.project', remote_vals)
                 if remote_id:
                     rec.related_project_id = remote_id
+                    print(f"Successfully synced - remote ID: {remote_id}")
             except Exception as e:
                 print(f"Failed to sync project creation: {e}")
 

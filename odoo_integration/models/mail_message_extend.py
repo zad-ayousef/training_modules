@@ -6,6 +6,7 @@ class MailMessage(models.Model):
 
     @api.model
     def create(self, vals):
+
         if vals.get('sync_in_progress'):
             vals.pop('sync_in_progress')
             return super().create(vals)
@@ -29,7 +30,7 @@ class MailMessage(models.Model):
 
                 if model == 'project.project':
                     related_id = getattr(record, 'related_project_id', None)
-                else:  # project.task
+                else:
                     related_id = getattr(record, 'related_task_id', None)
 
                 if related_id:
@@ -39,6 +40,7 @@ class MailMessage(models.Model):
                         remote_vals = self._prepare_remote_message_vals(vals, related_id)
 
                         if remote_vals:
+
                             sync_context = dict(self.env.context, chatter_sync_in_progress=True)
 
                             remote_msg_id = remote_odoo.create('mail.message', remote_vals)
@@ -72,5 +74,5 @@ class MailMessage(models.Model):
 
             return remote_vals
         except Exception as e:
-
+            print(f"Error preparing remote message values: {e}")
             return None
