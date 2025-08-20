@@ -13,3 +13,7 @@
 # partner_ledger_modification for Task (Training : Partner Ledger Modification)
 
 -----------------------
+
+# odoo_integration17 & odoo_integration18 for Task (Training : Odoo Integration)
+
+-----------------------
