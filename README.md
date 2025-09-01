@@ -17,3 +17,7 @@
 # odoo_integration17 & odoo_integration18 for Task (Training : Odoo Integration)
 
 -----------------------
+
+# discount for Task (Training : Dsicount)
+
+-----------------------
