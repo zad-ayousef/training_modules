@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="sale_order_view_inherit_discount" model="ir.ui.view">
+            <field name="name">sale.order.discount.visible</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='order_line']//list//field[@name='price_subtotal']" position="before">
+                    <field name="discount_amount"/>
+                </xpath>
+
+                <xpath expr="//group[@name='sale_total']/field[@name='tax_totals']" position="replace">
+                    <table class="table-borderless" style="width: 100%; margin-bottom: 0;">
+                        <tbody>
+                            <tr>
+                                <td class="text-end" style="padding: 1px 5px; font-weight: normal;">Untaxed Amount:</td>
+                                <td class="text-end" style="padding: 1px 5px;">
+                                    <field name="amount_untaxed" widget="monetary" nolabel="1" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-end" style="padding: 1px 5px; font-weight: normal;">Total Discount:</td>
+                                <td class="text-end" style="padding: 1px 5px;">
+                                    <field name="total_discount" widget="monetary" nolabel="1" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr style="border-top: 1px solid #dee2e6;">
+                                <td class="text-end" style="padding: 3px 5px 1px 5px; font-weight: normal;">Total:</td>
+                                <td class="text-end" style="padding: 3px 5px 1px 5px;">
+                                    <field name="amount_total" widget="monetary" nolabel="1" readonly="1"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

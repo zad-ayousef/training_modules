@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_view_form_inherit_discount" model="ir.ui.view">
+        <field name="name">account.move.view.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@class='oe_subtotal_footer']/field[@name='tax_totals']" position="replace">
+                <field name="amount_untaxed" widget="monetary" string="Untaxed Amount" readonly="1"/>
+
+                <!-- Add the tax amount field that was missing -->
+                <field name="amount_tax" widget="monetary" string="Taxes" readonly="1"/>
+                
+                <field name="total_discount" widget="monetary" string="Total Discount" readonly="1"/>
+
+                <field name="amount_total" widget="monetary" string="Total" readonly="1"
+                       class="oe_subtotal_footer_separator"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
