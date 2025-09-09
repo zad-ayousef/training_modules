@@ -21,3 +21,7 @@
 # discount for Task (Training : Dsicount)
 
 -----------------------
+
+# pos_modification for Task (Training: POS Task)
+
+-----------------------
