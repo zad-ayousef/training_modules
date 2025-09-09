@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="point_of_sale.ClosePosPopup" t-inherit="point_of_sale.ClosePosPopup" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[label[@class='form-label' and text()='Cash Count']]" position="before">
+            <div class="attachment-section mb-3">
+                <div class="row">
+                    <div class="col-12">
+                        <span>Session Attachment</span>
+                        <div class="form-group">
+                            <input type="file"
+                                   class="form-control"
+                                   t-on-change="onAttachment"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"/>
+                            <t t-if="attachmentFilename">
+                                <small class="text-muted mt-1 d-block">
+                                    Selected: <t t-esc="attachmentFilename"/>
+                                </small>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>
